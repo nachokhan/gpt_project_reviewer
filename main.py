@@ -159,7 +159,7 @@ if __name__ == "__main__":
             ##### GITHUB REPO ANALYSIS #####
 
             logging.info(f"Processing repo at {repo_url}")
-            project_structure = structre_analizer.process_repo(repo_url)
+            project_structure, _ = structre_analizer.process_repo(repo_url, "yaml")
             logging.info("Processing complete")
 
             save_json(json_file, project_structure)
@@ -178,14 +178,15 @@ if __name__ == "__main__":
 
 
             #### LALALA ADDED #####
-            lalala = structre_analizer.convert_to_string_list(project_structure)
-            lala = str(lalala)
-            lala = lala.replace("'", "")
-            lala = lala.replace(" ", "")
-            lala = lala.replace(",/", ",")
-            lala = lala.replace("[/", "")
-            lala = lala.replace("]", "")
-            clean_content = lala
+            clean_content = project_structure
+            # lalala = structre_analizer.convert_to_string_list(project_structure)
+            # lala = str(lalala)
+            # lala = lala.replace("'", "")
+            # lala = lala.replace(" ", "")
+            # lala = lala.replace(",/", ",")
+            # lala = lala.replace("[/", "")
+            # lala = lala.replace("]", "")
+            # clean_content = lala
 
 
             #####CHAT GPT IMPROVEMENT #####
@@ -200,16 +201,15 @@ if __name__ == "__main__":
             save_file(txt_file, improvement_answer)
             logging.info(f"Improvement answer saved to {txt_file}")
 
-          
-            # script_prompt = f"{gpt_config['script']['prompt']}\n{improvement_answer}"
-            # script_answer = gpt.send_chat_request(
-            #     prompt=script_prompt,
-            #     temperature=gpt_config['improvement']['temperature'],
-            #     top_p=gpt_config['improvement']['top_p'],
-            #     model=gpt_config['improvement']['model'],
-            # )
-            # save_file(script_file, script_answer)
-            # logging.info(f"Script saved to {script_file}")
+            script_prompt = f"{gpt_config['script']['prompt']}\n{improvement_answer}"
+            script_answer = gpt.send_chat_request(
+                prompt=script_prompt,
+                temperature=gpt_config['improvement']['temperature'],
+                top_p=gpt_config['improvement']['top_p'],
+                model=gpt_config['improvement']['model'],
+            )
+            save_file(script_file, script_answer)
+            logging.info(f"Script saved to {script_file}")
 
             create_html_answer(project_name_folder)
 

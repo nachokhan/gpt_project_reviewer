@@ -27,7 +27,7 @@ class DirectoryStructureGenerator():
 
         return temp_dir
 
-    def process_repo(self, repo_url):
+    def process_repo(self, repo_url, format="dict"):
         # Clonar el repositorio
         repo_tmp_folder = self._clone_git_repo(repo_url)
 
@@ -66,7 +66,7 @@ class DirectoryStructureGenerator():
             # Obtener la estructura del directorio
             folder_struct = get_project_structure(
                 repo_tmp_folder,
-                output_format="json",
+                output_format=format,
                 to_ignore=ignore_patterns,
                 to_add_content=to_add_content
             )
@@ -91,7 +91,7 @@ class DirectoryStructureGenerator():
     def convert_to_string_list(self, data, prefix=''):
         file_paths = []
         for key, value in data.items():
-            if value is None:
+            if value is None or isinstance(value, str):
                 file_paths.append(f"{prefix}/{key}")
             else:
                 file_paths.extend(self.convert_to_string_list(value, f"{prefix}/{key}"))
