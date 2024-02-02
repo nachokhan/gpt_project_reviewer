@@ -33,6 +33,7 @@ gpt_config = {
     }
 }
 
+
 def remove_unnecesary_chars(content):
     clean_content = content
     clean_content = clean_content.replace(": null", "")
@@ -42,17 +43,21 @@ def remove_unnecesary_chars(content):
     clean_content = clean_content.replace(",", "")
     return clean_content
 
+
 def save_json(file, structure):
     with open(file, "w") as f:
         json.dump(structure, f, indent=4, ensure_ascii=False)
+
 
 def save_file(file, text):
     with open(file, "w") as f:
         f.write(text)
 
+
 def append_to_file(file, text):
     with open(file, "a") as f:
         f.write(text)
+
 
 def create_html_answer(project_name_folder):
     # define the names of the relevant folders and files
@@ -92,7 +97,6 @@ def create_html_answer(project_name_folder):
     with open(os.path.join(html_folder, script_file), "w") as f:
         f.write(script_content)
 
-    
 
 def send_chat_request(prompt, temperature, top_p, output_file, model, info_text):
     logging.info(info_text)
@@ -112,14 +116,13 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-
-    entrada = "/Users/nacho/dev/personal/bunn_trade2"
     repo_list = [
         # "https://github.com/NicolasLefeld/brincalto-S.A-Back.git",
         # "https://github.com/NicolasLefeld/CodeChallenge-Lolocar",
         # "https://github.com/nachokhan/resto_reservas_webapp.git",
+        "https://github.com/nachokhan/pstruc",
         # "https://github.com/nachokhan/turnero.git",
-        "https://github.com/DLR-SC/tasking-framework.git"
+        # "https://github.com/DLR-SC/tasking-framework.git"
         # "https://github.com/sammchardy/python-binance.git",
         # "https://github.com/h5bp/html5-boilerplate.git",
     ]
@@ -127,8 +130,6 @@ if __name__ == "__main__":
     try:
 
         structre_analizer = DirectoryStructureGenerator(
-            show_full_path=False,
-            add_file_content=False,
             token=github_token,
         )
 
@@ -158,7 +159,7 @@ if __name__ == "__main__":
             ##### GITHUB REPO ANALYSIS #####
 
             logging.info(f"Processing repo at {repo_url}")
-            project_structure = structre_analizer.process_repo(repo_url)
+            project_structure, _ = structre_analizer.process_repo(repo_url, "yaml")
             logging.info("Processing complete")
 
             save_json(json_file, project_structure)
@@ -176,21 +177,19 @@ if __name__ == "__main__":
             save_json(gpt_config_file, gpt_config_serializabel)
 
 
-
             #### LALALA ADDED #####
-
-            lalala = structre_analizer.convert_to_string_list(project_structure)
-            lala = str(lalala)
-            lala = lala.replace("'", "")
-            lala = lala.replace(" ", "")
-            lala = lala.replace(",/", ",")
-            lala = lala.replace("[/", "")
-            lala = lala.replace("]", "")
-            clean_content = lala
+            clean_content = project_structure
+            # lalala = structre_analizer.convert_to_string_list(project_structure)
+            # lala = str(lalala)
+            # lala = lala.replace("'", "")
+            # lala = lala.replace(" ", "")
+            # lala = lala.replace(",/", ",")
+            # lala = lala.replace("[/", "")
+            # lala = lala.replace("]", "")
+            # clean_content = lala
 
 
             #####CHAT GPT IMPROVEMENT #####
-
             logging.info(f"Calling ChatGPT for improvement...")
             improvement_prompt = f"{gpt_config['improvement']['prompt']}\n{clean_content}"
             improvement_answer = gpt.send_chat_request(
@@ -202,19 +201,17 @@ if __name__ == "__main__":
             save_file(txt_file, improvement_answer)
             logging.info(f"Improvement answer saved to {txt_file}")
 
-          
-            # script_prompt = f"{gpt_config['script']['prompt']}\n{improvement_answer}"
-            # script_answer = gpt.send_chat_request(
-            #     prompt=script_prompt,
-            #     temperature=gpt_config['improvement']['temperature'],
-            #     top_p=gpt_config['improvement']['top_p'],
-            #     model=gpt_config['improvement']['model'],
-            # )
-            # save_file(script_file, script_answer)
-            # logging.info(f"Script saved to {script_file}")
+            script_prompt = f"{gpt_config['script']['prompt']}\n{improvement_answer}"
+            script_answer = gpt.send_chat_request(
+                prompt=script_prompt,
+                temperature=gpt_config['improvement']['temperature'],
+                top_p=gpt_config['improvement']['top_p'],
+                model=gpt_config['improvement']['model'],
+            )
+            save_file(script_file, script_answer)
+            logging.info(f"Script saved to {script_file}")
 
             create_html_answer(project_name_folder)
 
-       
     except Exception as e:
         print(f"Exception: {e}")
